@@ -39,15 +39,33 @@ function positions_contain($positions, $testing) {
   return false;
 }
 
+// OLD SOLUTION
+// function find_food_pos($excluding) {
+//   global $BOARD_SIZE;
+//   $bound = $BOARD_SIZE - 1;
+//   while(true) { // just a fast and bad solution
+//     $rnd = array( rand(0, $bound), rand(0, $bound) );
+//     if(!positions_contain($excluding, $rnd)) {
+//       return $rnd;
+//     }
+//   }
+// }
+
 function find_food_pos($excluding) {
   global $BOARD_SIZE;
-  $bound = $BOARD_SIZE - 1;
-  while(true) { // just a fast and bad solution
-    $rnd = array( rand(0, $bound), rand(0, $bound) );
-    if(!positions_contain($excluding, $rnd)) {
-      return $rnd;
+
+  $possible = array();
+  for($row = 0; $row < $BOARD_SIZE; $row++) {
+    for($column = 0; $column < $BOARD_SIZE; $column++) {
+      $pos = array($row, $column);
+      if(!positions_contain($excluding, $pos)) {
+        $possible[] = $pos;
+      }
     }
   }
+
+  $index = array_rand($possible, 1);
+  return $possible[$index];
 }
 
 $FOOD_POS = (array)query("food_pos", find_food_pos($SNAKE_BODY));

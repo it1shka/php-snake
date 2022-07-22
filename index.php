@@ -3,6 +3,8 @@
 // to save array as uri param --
 // https://stackoverflow.com/questions/1763508/passing-arrays-as-url-parameter
 
+define("SNAKE_BODY_PARAM_NAME", "b");
+
 function query($key, $default) {
   $maybeValue = $_GET[$key];
   if(empty($maybeValue)) {
@@ -26,7 +28,7 @@ function start_body() {
   return array( $middle, $middle );
 }
 
-$SNAKE_BODY = (array)query("snake_body", array( start_body() )); 
+$SNAKE_BODY = (array)query(SNAKE_BODY_PARAM_NAME, array( start_body() )); 
 
 function positions_contain($positions, $testing) {
   foreach($positions as $pos) {
@@ -143,16 +145,16 @@ function is_next($pos) {
       grid-template-columns: repeat(var(--board-size), 25px);
     }
 
-    .snake-board a {
-
-    }
-
     .snake-board .empty {
       background-color: black;
     }
 
     .snake-board .snake {
       background-color: red;
+    }
+
+    .snake-board .head {
+      background-color: orange;
     }
 
     .snake-board .neighbor {
@@ -181,6 +183,7 @@ for($row = 0; $row < $BOARD_SIZE; $row++) {
 
     $pos = array( $row, $column );
     $celltype = match (true) {
+      pos_eq($SNAKE_HEAD, $pos) => "head",
       positions_contain($SNAKE_BODY, $pos) => "snake",
       is_food_pos($pos) => "food",
       default => "empty",
@@ -199,7 +202,7 @@ for($row = 0; $row < $BOARD_SIZE; $row++) {
 
       $query = http_build_query(array(
         "board_size" => $BOARD_SIZE,
-        "snake_body" => $next_snake_body,
+        SNAKE_BODY_PARAM_NAME => $next_snake_body,
         "food_pos" => $next_food_pos,
       ));
 
@@ -216,6 +219,19 @@ for($row = 0; $row < $BOARD_SIZE; $row++) {
 
 ?>
     </div>
+<?php // if there are no futher steps, -- GAME OVER
+
+if (count($NEXT_STEPS) == 0) {
+  $again_uri = $_SERVER["PHP_SELF"];
+  echo <<< HTML
+  <div>
+    <h1>GAME OVER!</h1>
+    <a href="$again_uri">Again!</a>
+  </div>
+  HTML;
+}
+
+?>
   </div>
 </div>
 
